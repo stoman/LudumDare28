@@ -1,3 +1,6 @@
+/*jslint browser: true*/
+/*global  $, PIXI, requestAnimFrame*/
+
 // global variables
 var canvas;
 var renderer;
@@ -12,7 +15,7 @@ var mouseDown = false;
 $(document).ready(
         function() {
             // load assets
-            var loader = test = new PIXI.AssetLoader([
+            var loader = new PIXI.AssetLoader([
                 "img/pixi.js.png"
             
             // @TODO add assets
