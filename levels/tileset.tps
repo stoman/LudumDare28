@@ -88,7 +88,7 @@
             <key>freeSizeMode</key>
             <enum type="AlgorithmSettings::AlgorithmFreeSizeMode">Best</enum>
             <key>sizeConstraints</key>
-            <enum type="AlgorithmSettings::SizeConstraints">POT</enum>
+            <enum type="AlgorithmSettings::SizeConstraints">AnySize</enum>
             <key>forceSquared</key>
             <false/>
             <key>forceWordAligned</key>
@@ -166,8 +166,23 @@
         </struct>
         <key>fileList</key>
         <array>
+            <filename>tile_5.png</filename>
+            <filename>tile_6.png</filename>
+            <filename>tile_7.png</filename>
+            <filename>tile_8.png</filename>
+            <filename>tile_9.png</filename>
+            <filename>tile_10.png</filename>
+            <filename>tile_11.png</filename>
+            <filename>tile_12.png</filename>
+            <filename>tile_13.png</filename>
+            <filename>tile_14.png</filename>
+            <filename>tile_15.png</filename>
+            <filename>tile_16.png</filename>
+            <filename>tile_17.png</filename>
             <filename>tile_1.png</filename>
             <filename>tile_2.png</filename>
+            <filename>tile_3.png</filename>
+            <filename>tile_4.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

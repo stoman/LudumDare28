@@ -239,21 +239,23 @@ function loadLevel(name) {
 			stage = new PIXI.Stage(0x66FF99);
 			$.each(level.layers, function(i, layer) {
 				$.each(layer.data, function(i, tile) {
-					// load sprite
-					var texture = PIXI.Texture.fromFrame('tile_'+tile+'.png');
-					var sprite = new PIXI.Sprite(texture);
-					
-					// find position
-					var x = i % layer.width;
-					var y = (i - x) / layer.width;
-					
-					// set position
-					var tileset = level.tilesets[0];
-					sprite.position.x = x * tileset.tilewidth;
-					sprite.position.y = y * tileset.tileheight;
-					
-					// add sprite
-					stage.addChild(sprite);
+					if(tile !== 0) {
+						// load sprite
+						var texture = PIXI.Texture.fromFrame('tile_'+tile+'.png');
+						var sprite = new PIXI.Sprite(texture);
+						
+						// find position
+						var x = i % layer.width;
+						var y = (i - x) / layer.width;
+						
+						// set position
+						var tileset = level.tilesets[0];
+						sprite.position.x = x * tileset.tilewidth;
+						sprite.position.y = y * tileset.tileheight;
+						
+						// add sprite
+						stage.addChild(sprite);
+					}
 				});
 			});
 
