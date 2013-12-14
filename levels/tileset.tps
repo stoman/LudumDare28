@@ -68,7 +68,7 @@
         <key>maxTextureSize</key>
         <QSize>
             <key>width</key>
-            <int>2048</int>
+            <int>16384</int>
             <key>height</key>
             <int>64</int>
         </QSize>
@@ -198,6 +198,7 @@
             <filename>tile_30.png</filename>
             <filename>tile_31.png</filename>
             <filename>tile_32.png</filename>
+            <filename>tile_33.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

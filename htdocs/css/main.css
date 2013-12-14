@@ -1,5 +1,5 @@
 body {
-	background-color: #253d48;
+	background-color: #260b01;
 	color: #7a7d7a;
 }
 
@@ -10,8 +10,8 @@ body {
 }
 
 #game-canvas {
-	height: 600px;
-	width: 700px;
+	height: 640px;
+	width: 640px;
 	position: absolute;
 	top: 0px;
 	left: 0px;

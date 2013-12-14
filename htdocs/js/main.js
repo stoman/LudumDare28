@@ -84,8 +84,9 @@ function setup() {
 function initialize() {
     // game data
     game = {
-        speed : 1,
-        sprites : []
+    	level: [],
+        speed: 1,
+        sprites: []
     // @TODO add attributes
     };
     
@@ -231,12 +232,17 @@ function getBasePath() {
     return window.location.origin + directory;
 }
 
+/**
+ * This function loads a level from a level file and displays it.
+ * @param name the level's name without file ending
+ */
 function loadLevel(name) {
 	$.ajax({
 		url: 'levels/' + name  + '.json',
 		dataType: 'json',
 		success: function(level) {
-			stage = new PIXI.Stage(0x66FF99);
+			stage = new PIXI.Stage(0x260b01);
+			game.level = level;
 			$.each(level.layers, function(i, layer) {
 				$.each(layer.data, function(i, tile) {
 					if(tile !== 0) {
