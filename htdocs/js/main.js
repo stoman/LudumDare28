@@ -137,7 +137,7 @@ function animate() {
 
 // sound
 var sound = {
-    background : undefined
+    background: new Audio("audio/level1.wav")
 };
 var muted = false;
 
@@ -155,6 +155,10 @@ function playBackgroundMusic() {
     
     // setup sound.background
     sound.background.loop = true;
+    sound.background.addEventListener('ended', function() {
+        this.currentTime = 0;
+        this.play();
+    }, false);
     
     // play or pause
     if (muted) {
