@@ -166,11 +166,15 @@
         </struct>
         <key>fileList</key>
         <array>
-            <filename>tile_5.png</filename>
-            <filename>tile_6.png</filename>
-            <filename>tile_7.png</filename>
-            <filename>tile_8.png</filename>
-            <filename>tile_9.png</filename>
+            <filename>tile_01.png</filename>
+            <filename>tile_02.png</filename>
+            <filename>tile_03.png</filename>
+            <filename>tile_04.png</filename>
+            <filename>tile_05.png</filename>
+            <filename>tile_06.png</filename>
+            <filename>tile_07.png</filename>
+            <filename>tile_08.png</filename>
+            <filename>tile_09.png</filename>
             <filename>tile_10.png</filename>
             <filename>tile_11.png</filename>
             <filename>tile_12.png</filename>
@@ -179,10 +183,21 @@
             <filename>tile_15.png</filename>
             <filename>tile_16.png</filename>
             <filename>tile_17.png</filename>
-            <filename>tile_1.png</filename>
-            <filename>tile_2.png</filename>
-            <filename>tile_3.png</filename>
-            <filename>tile_4.png</filename>
+            <filename>tile_18.png</filename>
+            <filename>tile_19.png</filename>
+            <filename>tile_20.png</filename>
+            <filename>tile_21.png</filename>
+            <filename>tile_22.png</filename>
+            <filename>tile_23.png</filename>
+            <filename>tile_24.png</filename>
+            <filename>tile_25.png</filename>
+            <filename>tile_26.png</filename>
+            <filename>tile_27.png</filename>
+            <filename>tile_28.png</filename>
+            <filename>tile_29.png</filename>
+            <filename>tile_30.png</filename>
+            <filename>tile_31.png</filename>
+            <filename>tile_32.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

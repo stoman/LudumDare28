@@ -241,7 +241,7 @@ function loadLevel(name) {
 				$.each(layer.data, function(i, tile) {
 					if(tile !== 0) {
 						// load sprite
-						var texture = PIXI.Texture.fromFrame('tile_'+tile+'.png');
+						var texture = PIXI.Texture.fromFrame('tile_'+(tile < 10 ? '0' : '')+tile+'.png');
 						var sprite = new PIXI.Sprite(texture);
 						
 						// find position
