@@ -1,5 +1,5 @@
 /*jslint browser: true*/
-/*global  $, PIXI, requestAnimFrame*/
+/*global  $, console, PIXI, requestAnimFrame*/
 
 // global variables
 var canvas;
@@ -16,17 +16,23 @@ $(document).ready(
         function() {
             // load assets
             var loader = new PIXI.AssetLoader([
-                "img/pixi.js.png"
+            	//images
+                "img/pixi.js.png",
+                
+                //tileset
+                "levels/tileset.json"
             
             // @TODO add assets
             
             ]);
             loader.addEventListener("onComplete", function(event) {
                 // finished -> start game
-                var time = 2000;
+                var time = 200;
                 $("#loading").fadeOut(time, function() {
                     $("#game-canvas").fadeIn(time);
                     playBackgroundMusic();
+                    setup();
+                    initialize();
                 });
             });
             
@@ -53,13 +59,13 @@ function setup() {
     // handle keyboard input
     document.onkeydown = function(event) {
         keysPressed.push(event.keyCode);
-        return false;
+        return true;
     };
     document.onkeyup = function(event) {
         while (-1 < keysPressed.indexOf(event.keyCode)) {
             keysPressed.splice(keysPressed.indexOf(event.keyCode), 1);
         }
-        return false;
+        return true;
     };
     
     // handle mouse input
@@ -83,13 +89,8 @@ function initialize() {
     // @TODO add attributes
     };
     
-    // setup renderer and stage
-    stage = new PIXI.Stage(0x66FF99);
-    
     // @TODO add children
-    
-    // animate
-    requestAnimFrame(animate);
+    stage = loadLevel("level1");
 }
 
 /**
@@ -155,10 +156,6 @@ function playBackgroundMusic() {
     
     // setup sound.background
     sound.background.loop = true;
-    sound.background.addEventListener('ended', function() {
-        this.currentTime = 0;
-        this.play();
-    }, false);
     
     // play or pause
     if (muted) {
@@ -232,4 +229,36 @@ function getBasePath() {
         }
     }
     return window.location.origin + directory;
+}
+
+function loadLevel(name) {
+	$.ajax({
+		url: 'levels/' + name  + '.json',
+		dataType: 'json',
+		success: function(level) {
+			stage = new PIXI.Stage(0x66FF99);
+			$.each(level.layers, function(i, layer) {
+				$.each(layer.data, function(i, tile) {
+					// load sprite
+					var texture = PIXI.Texture.fromFrame('tile_'+tile+'.png');
+					var sprite = new PIXI.Sprite(texture);
+					
+					// find position
+					var x = i % layer.width;
+					var y = (i - x) / layer.width;
+					
+					// set position
+					var tileset = level.tilesets[0];
+					sprite.position.x = x * tileset.tilewidth;
+					sprite.position.y = y * tileset.tileheight;
+					
+					// add sprite
+					stage.addChild(sprite);
+				});
+			});
+
+		    // animate
+		    requestAnimFrame(animate);
+		}
+	});
 }
