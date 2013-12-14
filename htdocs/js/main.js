@@ -149,7 +149,7 @@ var muted = false;
  */
 function playBackgroundMusic() {
     // check for setup
-    if (sound.background == undefined) {
+    if (sound.background === undefined) {
         return;
     }
     
@@ -205,8 +205,8 @@ function toggleMute() {
 function getBasePath() {
     var pathname = window.location.pathname;
     var directory;
-    if (pathname.indexOf('/') == -1) {
-        if (pathname.indexOf('.') == -1) {
+    if (pathname.indexOf('/') === -1) {
+        if (pathname.indexOf('.') === -1) {
             // directory at top level
             directory = pathname + '/';
         }
@@ -219,7 +219,7 @@ function getBasePath() {
         if (pathname.lastIndexOf('.') < pathname.lastIndexOf('/')) {
             // directory at nested level
             directory = pathname
-                    + (pathname.lastIndexOf('/') == pathname.length - 1 ? ''
+                    + (pathname.lastIndexOf('/') === pathname.length - 1 ? ''
                             : '/');
         }
         else {
