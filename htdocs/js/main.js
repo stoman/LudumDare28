@@ -16,14 +16,14 @@ $(document).ready(
         function() {
             // load assets
             var loader = new PIXI.AssetLoader([
-            	//images
+            	// images
                 "img/pixi.js.png",
                 
-                //tileset
+            	// sprites
+                "img/sprites.json",
+                
+                // tileset
                 "levels/tileset.json"
-            
-            // @TODO add assets
-            
             ]);
             loader.addEventListener("onComplete", function(event) {
                 // finished -> start game
@@ -85,13 +85,44 @@ function initialize() {
     // game data
     game = {
     	level: [],
+    	player: {
+    		sprite: undefined,
+    		position: undefined,
+    		speed: {
+    			x: 0,
+    			y: 0
+    		},
+    		baseSpeed: 1,
+    		moving: undefined
+    	},
         speed: 1,
         sprites: []
-    // @TODO add attributes
     };
-    
-    // @TODO add children
-    stage = loadLevel("level1");
+
+	// load player    
+    var playerFrames = [
+    	"player.png",
+    	"player_1l.png",
+    	"player_2l.png",
+    	"player_1l.png",
+    	"player.png",
+    	"player_1r.png",
+    	"player_2r.png",
+    	"player_1r.png"
+    ];
+    var playerTextures = [];
+    for(var i = 0; i < playerFrames.length; i++) {
+		playerTextures.push(PIXI.Texture.fromFrame(playerFrames[i]));
+    }
+    game.player.sprite = new PIXI.MovieClip(playerTextures);
+    game.player.sprite.gotoAndPlay(0);
+    game.player.sprite.anchor.x = 0.5;
+    game.player.sprite.anchor.y = 0.5;
+    game.player.sprite.animationSpeed = 0;
+    game.sprites.push(game.player);
+
+    // load level
+    loadLevel("level1");
 }
 
 /**
@@ -104,31 +135,18 @@ function animate() {
     
     // update sprites
     for ( var i = 0; i < game.sprites.length; i++) {
-        // compute new attributes
-        // position
-        game.sprites[i].position.x += game.speed * game.sprites[i].speed.x;
-        game.sprites[i].position.y += game.speed * game.sprites[i].speed.y;
-        // size
-        if (game.sprites[i].growing) {
-            game.sprites[i].size += game.speed
-                    * Math.sqrt(game.sprites[i].speed.x
-                            * game.sprites[i].speed.x + game.sprites[i].speed.y
-                            * game.sprites[i].speed.y) / 10;
-        }
-        // set sprite attributes
+        // start moving
+        /*
+        game.sprites[i].sprite.position.x += game.speed * game.sprites[i].speed.x;
+        game.sprites[i].sprite.position.y += game.speed * game.sprites[i].speed.y;
+        
         // position
         game.sprites[i].sprite.position.x = game.sprites[i].position.x;
         game.sprites[i].sprite.position.y = game.sprites[i].position.y;
+        
         // rotation
         game.sprites[i].sprite.rotation = Math.atan2(game.sprites[i].speed.y,
-                game.sprites[i].speed.x);
-        // scale
-        if ('size' in game.sprites[i]) {
-            game.sprites[i].sprite.scale.x = game.sprites[i].size
-                    / game.sprites[i].sprite.texture.width;
-            game.sprites[i].sprite.scale.y = game.sprites[i].size
-                    / game.sprites[i].sprite.texture.width;
-        }
+                game.sprites[i].speed.x);*/
     }
     
     // render
@@ -234,9 +252,10 @@ function getBasePath() {
 
 /**
  * This function loads a level from a level file and displays it.
- * @param name the level's name without file ending
+ * @param name is the level's name without file ending
+ * @param callback is a function to be called when the level is loaded
  */
-function loadLevel(name) {
+function loadLevel(name, callback) {
 	$.ajax({
 		url: 'levels/' + name  + '.json',
 		dataType: 'json',
@@ -261,9 +280,32 @@ function loadLevel(name) {
 						
 						// add sprite
 						stage.addChild(sprite);
+						
+						// find start
+						if(tileProperty("start", x, y) === "1") {
+							game.player.position = {
+								x: x,
+								y: y
+							};
+							game.player.sprite.position = {
+								x: (x + 0.5) * tileset.tilewidth,
+								y: (y + 0.5) * tileset.tileheight
+							};
+							game.player.sprite.rotation = Math.PI/2;
+						}
 					}
 				});
 			});
+			
+			// add sprites
+			$.each(game.sprites, function(i, sprite) {
+				stage.addChild(sprite.sprite);	
+			});
+
+			// callback
+			if(callback !== undefined) {
+				callback();	
+			}
 
 		    // animate
 		    requestAnimFrame(animate);
