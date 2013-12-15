@@ -157,6 +157,7 @@ function animate() {
         		else {
         			agent.sprite.position.x -= max;
         			agent.movingDirection = undefined;
+        			arriveOnTile(game.player.position.x, game.player.position.y);
         		}
         		break;
         		
@@ -168,6 +169,7 @@ function animate() {
         		else {
         			agent.sprite.position.x += max;
         			agent.movingDirection = undefined;
+        			arriveOnTile(game.player.position.x, game.player.position.y);
         		}
         		break;
 
@@ -179,6 +181,7 @@ function animate() {
         		else {
         			agent.sprite.position.y -= max;
         			agent.movingDirection = undefined;
+        			arriveOnTile(game.player.position.x, game.player.position.y);
         		}
         		break;
         		
@@ -190,6 +193,7 @@ function animate() {
         		else {
         			agent.sprite.position.y += max;
         			agent.movingDirection = undefined;
+        			arriveOnTile(game.player.position.x, game.player.position.y);
         		}
         		break;
 		}
@@ -274,7 +278,8 @@ function animate() {
 // sound
 var sound = {
     background: new Audio('audio/level1.wav'),
-    bump: new Audio('audio/bump.wav')
+    bump: new Audio('audio/bump.wav'),
+    pickup: new Audio('audio/pickup.wav')
 };
 var muted = true;
 
@@ -446,5 +451,18 @@ function tileProperty(prop, x, y) {
 	}
 	else {
 		return tileset.properties[prop];
+	}
+}
+
+/**
+ * This function is called on each tile the player steps on
+ * @param x is the first coordinate of the new tile
+ * @param y is the second coordinate of the new tile
+ */
+function arriveOnTile(x, y) {
+	if(tileProperty('key', x, y) !== undefined) {
+		if(!muted) {
+			sound.pickup.play();	
+		}
 	}
 }
