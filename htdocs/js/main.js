@@ -202,9 +202,14 @@ function animate() {
 						agent.movingDirection = agent.inputDirection;
 						agent.position.x--;
 						agent.sprite.position.x -= Math.min(agent.speed * game.speed, tileset.tilewidth/2);
-						agent.sprite.rotation = -Math.PI/2;
 						agent.sprite.animationSpeed = 0.1 * agent.speed * game.speed;
 					}
+					else {
+						if(!muted) {
+							sound.bump.play();	
+						}
+					}
+					agent.sprite.rotation = -Math.PI/2;
 					break;
 
 				case 'east':
@@ -212,9 +217,14 @@ function animate() {
 						agent.movingDirection = agent.inputDirection;
 						agent.position.x++;
 						agent.sprite.position.x += Math.min(agent.speed * game.speed, tileset.tilewidth/2);
-						agent.sprite.rotation = Math.PI/2;
 						agent.sprite.animationSpeed = 0.1 * agent.speed * game.speed;
 					}
+					else {
+						if(!muted) {
+							sound.bump.play();	
+						}
+					}
+					agent.sprite.rotation = Math.PI/2;
 					break;
 
 				case 'north':
@@ -222,9 +232,14 @@ function animate() {
 						agent.movingDirection = agent.inputDirection;
 						agent.position.y--;
 						agent.sprite.position.y -= Math.min(agent.speed * game.speed, tileset.tileheight/2);
-						agent.sprite.rotation = 0;
 						agent.sprite.animationSpeed = 0.1 * agent.speed * game.speed;
 					}
+					else {
+						if(!muted) {
+							sound.bump.play();	
+						}
+					}
+					agent.sprite.rotation = 0;
 					break;
 
 				case 'south':
@@ -232,9 +247,14 @@ function animate() {
 						agent.movingDirection = agent.inputDirection;
 						agent.position.y++;
 						agent.sprite.position.y += Math.min(agent.speed * game.speed, tileset.tileheight/2);
-						agent.sprite.rotation = Math.PI;
 						agent.sprite.animationSpeed = 0.1 * agent.speed * game.speed;
 					}
+					else {
+						if(!muted) {
+							sound.bump.play();	
+						}
+					}
+					agent.sprite.rotation = Math.PI;
 					break;
 			}
 		}
@@ -253,7 +273,8 @@ function animate() {
 
 // sound
 var sound = {
-    background: new Audio('audio/level1.wav')
+    background: new Audio('audio/level1.wav'),
+    bump: new Audio('audio/bump.wav')
 };
 var muted = true;
 
