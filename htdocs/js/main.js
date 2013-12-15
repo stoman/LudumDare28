@@ -17,19 +17,19 @@ $(document).ready(
             // load assets
             var loader = new PIXI.AssetLoader([
             	// images
-                "img/pixi.js.png",
+                'img/pixi.js.png',
                 
             	// sprites
-                "img/sprites.json",
+                'img/sprites.json',
                 
                 // tileset
-                "levels/tileset.json"
+                'levels/tileset.json'
             ]);
-            loader.addEventListener("onComplete", function(event) {
+            loader.addEventListener('onComplete', function(event) {
                 // finished -> start game
                 var time = 200;
-                $("#loading").fadeOut(time, function() {
-                    $("#game-canvas").fadeIn(time);
+                $('#loading').fadeOut(time, function() {
+                    $('#game-canvas').fadeIn(time);
                     playBackgroundMusic();
                     setup();
                     initialize();
@@ -38,21 +38,21 @@ $(document).ready(
             
             // loading progress
             var loadCount = 0;
-            loader.addEventListener("onProgress", function(event) {
-                $("#loading p").html(
+            loader.addEventListener('onProgress', function(event) {
+                $('#loading p').html(
                         Math.round(100 * ++loadCount / loader.assetURLs.length)
-                                + "%");
+                                + '%');
             });
             
             // start loading
             loader.load();
-            $("#js-error").hide();
-            $("#loading").show();
+            $('#js-error').hide();
+            $('#loading').show();
         });
 
 function setup() {
     // setup renderer and stage
-    canvas = $("#game-canvas");
+    canvas = $('#game-canvas');
     renderer = new PIXI.autoDetectRenderer(canvas.width(), canvas.height(),
             canvas[0]);
     
@@ -88,12 +88,9 @@ function initialize() {
     	player: {
     		sprite: undefined,
     		position: undefined,
-    		speed: {
-    			x: 0,
-    			y: 0
-    		},
-    		baseSpeed: 1,
-    		moving: undefined
+    		speed: 1,
+    		movingDirection: undefined,
+    		inputDirection: undefined
     	},
         speed: 1,
         sprites: []
@@ -101,28 +98,28 @@ function initialize() {
 
 	// load player    
     var playerFrames = [
-    	"player.png",
-    	"player_1l.png",
-    	"player_2l.png",
-    	"player_1l.png",
-    	"player.png",
-    	"player_1r.png",
-    	"player_2r.png",
-    	"player_1r.png"
+    	'player.png',
+    	'player_1l.png',
+    	'player_2l.png',
+    	'player_1l.png',
+    	'player.png',
+    	'player_1r.png',
+    	'player_2r.png',
+    	'player_1r.png'
     ];
     var playerTextures = [];
     for(var i = 0; i < playerFrames.length; i++) {
 		playerTextures.push(PIXI.Texture.fromFrame(playerFrames[i]));
     }
     game.player.sprite = new PIXI.MovieClip(playerTextures);
-    game.player.sprite.gotoAndPlay(0);
     game.player.sprite.anchor.x = 0.5;
     game.player.sprite.anchor.y = 0.5;
     game.player.sprite.animationSpeed = 0;
+    game.player.sprite.gotoAndPlay(0);
     game.sprites.push(game.player);
 
     // load level
-    loadLevel("level1");
+    loadLevel('level1');
 }
 
 /**
@@ -131,24 +128,44 @@ function initialize() {
  */
 function animate() {
     
-    // @TODO add code
-    
+    var tileset = game.level.tilesets[0];
     // update sprites
-    for ( var i = 0; i < game.sprites.length; i++) {
-        // start moving
-        /*
-        game.sprites[i].sprite.position.x += game.speed * game.sprites[i].speed.x;
-        game.sprites[i].sprite.position.y += game.speed * game.sprites[i].speed.y;
-        
-        // position
-        game.sprites[i].sprite.position.x = game.sprites[i].position.x;
-        game.sprites[i].sprite.position.y = game.sprites[i].position.y;
-        
-        // rotation
-        game.sprites[i].sprite.rotation = Math.atan2(game.sprites[i].speed.y,
-                game.sprites[i].speed.x);*/
-    }
-    
+	$.each(game.sprites, function(i, agent) {
+        // move
+        switch(agent.movingDirection) {
+        	case 'west':
+        		var max = (tileset.tilewidth/2 + agent.sprite.position.x) % tileset.tilewidth;
+        		if(agent.speed * game.speed < max) {
+        			agent.sprite.position.x -= agent.speed * game.speed;
+        		}
+        		else {
+        			agent.sprite.position.x -= max;
+        			agent.movingDirection = undefined;
+        		}
+        		break;
+		}
+		
+		// start moving
+		if(agent.movingDirection === undefined) {
+			switch(agent.inputDirection) {
+				case 'west':
+					if(agent.position.x > 0 && tileProperty('walkable', agent.position.x-1, agent.position.y) === '1') {
+						agent.movingDirection = 'west';
+						agent.position.x--;
+						agent.sprite.position.x -= Math.min(agent.speed * game.speed, tileset.tilewidth/2);
+						agent.sprite.rotation = -Math.PI/2;
+						agent.sprite.animationSpeed = 0.15;
+					}
+					break;
+			}
+		}
+		
+		// still not moving
+		if(agent.movingDirection === undefined) {
+   			agent.sprite.animationSpeed = 0;
+		    game.player.sprite.gotoAndPlay(0);
+		}
+	});    
     // render
     renderer.render(stage);
     
@@ -157,11 +174,11 @@ function animate() {
 
 // sound
 var sound = {
-    background: new Audio("audio/level1.wav")
+    background: new Audio('audio/level1.wav')
 };
-var muted = false;
+var muted = true;
 
-// @TODO load sound like sound.background = new Audio("audio/rich-vines.wav");
+// @TODO load sound like sound.background = new Audio('audio/rich-vines.wav');
 
 /**
  * This function initializes the background music and plays it if it is not
@@ -282,7 +299,7 @@ function loadLevel(name, callback) {
 						stage.addChild(sprite);
 						
 						// find start
-						if(tileProperty("start", x, y) === "1") {
+						if(tileProperty('start', x, y) === '1') {
 							game.player.position = {
 								x: x,
 								y: y
