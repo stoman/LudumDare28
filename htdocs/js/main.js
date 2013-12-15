@@ -127,19 +127,68 @@ function initialize() {
  * second. All position updates and so on go here.
  */
 function animate() {
+	// read user input
+	game.player.inputDirection = undefined;
+	if(-1 < keysPressed.indexOf(38)) {
+		game.player.inputDirection = 'north';	
+	}
+	if(-1 < keysPressed.indexOf(39)) {
+		game.player.inputDirection = 'east';	
+	}
+	if(-1 < keysPressed.indexOf(40)) {
+		game.player.inputDirection = 'south';	
+	}
+	if(-1 < keysPressed.indexOf(37)) {
+		game.player.inputDirection = 'west';	
+	}
+	
     
     var tileset = game.level.tilesets[0];
     // update sprites
 	$.each(game.sprites, function(i, agent) {
         // move
+        var max;
         switch(agent.movingDirection) {
         	case 'west':
-        		var max = (tileset.tilewidth/2 + agent.sprite.position.x) % tileset.tilewidth;
+        		max = (tileset.tilewidth/2 + agent.sprite.position.x) % tileset.tilewidth;
         		if(agent.speed * game.speed < max) {
         			agent.sprite.position.x -= agent.speed * game.speed;
         		}
         		else {
         			agent.sprite.position.x -= max;
+        			agent.movingDirection = undefined;
+        		}
+        		break;
+        		
+        	case 'east':
+        		max = tileset.tilewidth - ((tileset.tilewidth/2 + agent.sprite.position.x) % tileset.tilewidth);
+        		if(agent.speed * game.speed < max) {
+        			agent.sprite.position.x += agent.speed * game.speed;
+        		}
+        		else {
+        			agent.sprite.position.x += max;
+        			agent.movingDirection = undefined;
+        		}
+        		break;
+
+        	case 'north':
+        		max = (tileset.tileheight/2 + agent.sprite.position.y) % tileset.tileheight;
+        		if(agent.speed * game.speed < max) {
+        			agent.sprite.position.y -= agent.speed * game.speed;
+        		}
+        		else {
+        			agent.sprite.position.y -= max;
+        			agent.movingDirection = undefined;
+        		}
+        		break;
+        		
+        	case 'south':
+        		max = tileset.tileheight - ((tileset.tileheight/2 + agent.sprite.position.y) % tileset.tileheight);
+        		if(agent.speed * game.speed < max) {
+        			agent.sprite.position.y += agent.speed * game.speed;
+        		}
+        		else {
+        			agent.sprite.position.y += max;
         			agent.movingDirection = undefined;
         		}
         		break;
@@ -150,11 +199,41 @@ function animate() {
 			switch(agent.inputDirection) {
 				case 'west':
 					if(agent.position.x > 0 && tileProperty('walkable', agent.position.x-1, agent.position.y) === '1') {
-						agent.movingDirection = 'west';
+						agent.movingDirection = agent.inputDirection;
 						agent.position.x--;
 						agent.sprite.position.x -= Math.min(agent.speed * game.speed, tileset.tilewidth/2);
 						agent.sprite.rotation = -Math.PI/2;
-						agent.sprite.animationSpeed = 0.15;
+						agent.sprite.animationSpeed = 0.1 * agent.speed * game.speed;
+					}
+					break;
+
+				case 'east':
+					if(agent.position.x < game.level.width-1 && tileProperty('walkable', agent.position.x+1, agent.position.y) === '1') {
+						agent.movingDirection = agent.inputDirection;
+						agent.position.x++;
+						agent.sprite.position.x += Math.min(agent.speed * game.speed, tileset.tilewidth/2);
+						agent.sprite.rotation = Math.PI/2;
+						agent.sprite.animationSpeed = 0.1 * agent.speed * game.speed;
+					}
+					break;
+
+				case 'north':
+					if(agent.position.y > 0 && tileProperty('walkable', agent.position.x, agent.position.y-1) === '1') {
+						agent.movingDirection = agent.inputDirection;
+						agent.position.y--;
+						agent.sprite.position.y -= Math.min(agent.speed * game.speed, tileset.tileheight/2);
+						agent.sprite.rotation = 0;
+						agent.sprite.animationSpeed = 0.1 * agent.speed * game.speed;
+					}
+					break;
+
+				case 'south':
+					if(agent.position.y < game.level.height-1 && tileProperty('walkable', agent.position.x, agent.position.y+1) === '1') {
+						agent.movingDirection = agent.inputDirection;
+						agent.position.y++;
+						agent.sprite.position.y += Math.min(agent.speed * game.speed, tileset.tileheight/2);
+						agent.sprite.rotation = Math.PI;
+						agent.sprite.animationSpeed = 0.1 * agent.speed * game.speed;
 					}
 					break;
 			}
