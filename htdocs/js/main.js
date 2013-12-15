@@ -89,6 +89,7 @@ function initialize() {
     	player: {
     		sprite: undefined,
     		position: undefined,
+    		positionTile: undefined,
     		speed: 1,
     		movingDirection: undefined,
     		inputDirection: undefined
@@ -151,50 +152,59 @@ function animate() {
         var max;
         switch(agent.movingDirection) {
         	case 'west':
-        		max = (tileset.tilewidth/2 + agent.sprite.position.x) % tileset.tilewidth;
+        		max = (tileset.tilewidth/2 + agent.position.x) % tileset.tilewidth;
         		if(agent.speed * game.speed < max) {
-        			agent.sprite.position.x -= agent.speed * game.speed;
+        			agent.position.x -= agent.speed * game.speed;
         		}
         		else {
-        			agent.sprite.position.x -= max;
+        			agent.position.x -= max;
         			agent.movingDirection = undefined;
-        			arriveOnTile(game.player.position.x, game.player.position.y);
+        			if(agent === game.player) {
+        				arriveOnTile(agent.positionTile.x, agent.positionTile.y);
+        			}
         		}
         		break;
         		
         	case 'east':
-        		max = tileset.tilewidth - ((tileset.tilewidth/2 + agent.sprite.position.x) % tileset.tilewidth);
+        		max = tileset.tilewidth - ((tileset.tilewidth/2 + agent.position.x) % tileset.tilewidth);
         		if(agent.speed * game.speed < max) {
-        			agent.sprite.position.x += agent.speed * game.speed;
+        			agent.position.x += agent.speed * game.speed;
         		}
         		else {
-        			agent.sprite.position.x += max;
+        			agent.position.x += max;
         			agent.movingDirection = undefined;
-        			arriveOnTile(game.player.position.x, game.player.position.y);
+        			if(agent === game.player) {
+        				arriveOnTile(agent.positionTile.x, agent.positionTile.y);
+        			}
         		}
         		break;
 
         	case 'north':
-        		max = (tileset.tileheight/2 + agent.sprite.position.y) % tileset.tileheight;
+        		max = (tileset.tileheight/2 + agent.position.y) % tileset.tileheight;
         		if(agent.speed * game.speed < max) {
-        			agent.sprite.position.y -= agent.speed * game.speed;
+        			agent.position.y -= agent.speed * game.speed;
         		}
         		else {
-        			agent.sprite.position.y -= max;
+        			agent.position.y -= max;
         			agent.movingDirection = undefined;
-        			arriveOnTile(game.player.position.x, game.player.position.y);
+        			if(agent === game.player) {
+        				arriveOnTile(agent.positionTile.x, agent.positionTile.y);
+        			}
+
         		}
         		break;
         		
         	case 'south':
-        		max = tileset.tileheight - ((tileset.tileheight/2 + agent.sprite.position.y) % tileset.tileheight);
+        		max = tileset.tileheight - ((tileset.tileheight/2 + agent.position.y) % tileset.tileheight);
         		if(agent.speed * game.speed < max) {
-        			agent.sprite.position.y += agent.speed * game.speed;
+        			agent.position.y += agent.speed * game.speed;
         		}
         		else {
-        			agent.sprite.position.y += max;
+        			agent.position.y += max;
         			agent.movingDirection = undefined;
-        			arriveOnTile(game.player.position.x, game.player.position.y);
+        			if(agent === game.player) {
+        				arriveOnTile(agent.positionTile.x, agent.positionTile.y);
+        			}
         		}
         		break;
 		}
@@ -203,10 +213,10 @@ function animate() {
 		if(agent.movingDirection === undefined) {
 			switch(agent.inputDirection) {
 				case 'west':
-					if(agent.position.x > 0 && tileProperty('walkable', agent.position.x-1, agent.position.y) === '1') {
+					if(agent.positionTile.x > 0 && tileProperty('walkable', agent.positionTile.x-1, agent.positionTile.y) === '1') {
 						agent.movingDirection = agent.inputDirection;
-						agent.position.x--;
-						agent.sprite.position.x -= Math.min(agent.speed * game.speed, tileset.tilewidth/2);
+						agent.positionTile.x--;
+						agent.position.x -= Math.min(agent.speed * game.speed, tileset.tilewidth/2);
 						agent.sprite.animationSpeed = 0.1 * agent.speed * game.speed;
 					}
 					else {
@@ -218,10 +228,10 @@ function animate() {
 					break;
 
 				case 'east':
-					if(agent.position.x < game.level.width-1 && tileProperty('walkable', agent.position.x+1, agent.position.y) === '1') {
+					if(agent.positionTile.x < game.level.width-1 && tileProperty('walkable', agent.positionTile.x+1, agent.positionTile.y) === '1') {
 						agent.movingDirection = agent.inputDirection;
-						agent.position.x++;
-						agent.sprite.position.x += Math.min(agent.speed * game.speed, tileset.tilewidth/2);
+						agent.positionTile.x++;
+						agent.position.x += Math.min(agent.speed * game.speed, tileset.tilewidth/2);
 						agent.sprite.animationSpeed = 0.1 * agent.speed * game.speed;
 					}
 					else {
@@ -233,10 +243,10 @@ function animate() {
 					break;
 
 				case 'north':
-					if(agent.position.y > 0 && tileProperty('walkable', agent.position.x, agent.position.y-1) === '1') {
+					if(agent.positionTile.y > 0 && tileProperty('walkable', agent.positionTile.x, agent.positionTile.y-1) === '1') {
 						agent.movingDirection = agent.inputDirection;
-						agent.position.y--;
-						agent.sprite.position.y -= Math.min(agent.speed * game.speed, tileset.tileheight/2);
+						agent.positionTile.y--;
+						agent.position.y -= Math.min(agent.speed * game.speed, tileset.tileheight/2);
 						agent.sprite.animationSpeed = 0.1 * agent.speed * game.speed;
 					}
 					else {
@@ -248,10 +258,10 @@ function animate() {
 					break;
 
 				case 'south':
-					if(agent.position.y < game.level.height-1 && tileProperty('walkable', agent.position.x, agent.position.y+1) === '1') {
+					if(agent.positionTile.y < game.level.height-1 && tileProperty('walkable', agent.positionTile.x, agent.positionTile.y+1) === '1') {
 						agent.movingDirection = agent.inputDirection;
-						agent.position.y++;
-						agent.sprite.position.y += Math.min(agent.speed * game.speed, tileset.tileheight/2);
+						agent.positionTile.y++;
+						agent.position.y += Math.min(agent.speed * game.speed, tileset.tileheight/2);
 						agent.sprite.animationSpeed = 0.1 * agent.speed * game.speed;
 					}
 					else {
@@ -270,6 +280,29 @@ function animate() {
 		    game.player.sprite.gotoAndPlay(0);
 		}
 	});    
+	
+	// position all objects
+	var offset = {
+		x: Math.max(Math.min(0, -game.player.position.x + canvas.width()/2), canvas.width() - game.level.width * tileset.tilewidth),
+		y: Math.max(Math.min(0, -game.player.position.y + canvas.height()/2), canvas.height() - game.level.height * tileset.tileheight)
+	};
+
+	// set position of tile
+	for(var x = 0; x < game.level.width; x++) {
+		for(var y = 0; y < game.level.height; y++) {
+			game.level.sprites[x][y].position.x = offset.x + x * tileset.tilewidth;
+			game.level.sprites[x][y].position.y = offset.y + y * tileset.tileheight;
+		}
+	}
+	
+	// set position of agents
+	$.each(game.sprites, function(i, agent) {
+		agent.sprite.position.x = offset.x + agent.position.x;
+		agent.sprite.position.y = offset.y + agent.position.y;
+	});
+	
+
+	
     // render
     renderer.render(stage);
     
@@ -396,12 +429,12 @@ function loadLevel(name, callback) {
 
 						// find start
 						if(tileProperty('start', x, y) === '1') {
-							game.player.position = {
+							game.player.positionTile = {
 								x: x,
 								y: y
 							};
 							var tileset = game.level.tilesets[0];
-							game.player.sprite.position = {
+							game.player.position = {
 								x: (x + 0.5) * tileset.tilewidth,
 								y: (y + 0.5) * tileset.tileheight
 							};
@@ -445,11 +478,6 @@ function setLevelTile(x, y, tile) {
 	// load sprite
 	var texture = PIXI.Texture.fromFrame('tile_'+(tile < 10 ? '0' : '')+tile+'.png');
 	var sprite = new PIXI.Sprite(texture);
-	
-	// set position
-	var tileset = game.level.tilesets[0];
-	sprite.position.x = x * tileset.tilewidth;
-	sprite.position.y = y * tileset.tileheight;
 	
 	// add sprite
 	if(game.level.sprites[x][y] !== undefined) {
