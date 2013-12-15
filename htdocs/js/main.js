@@ -84,6 +84,7 @@ function setup() {
 function initialize() {
     // game data
     game = {
+    	activeKey: undefined,
     	level: [],
     	player: {
     		sprite: undefined,
@@ -283,8 +284,6 @@ var sound = {
 };
 var muted = true;
 
-// @TODO load sound like sound.background = new Audio('audio/rich-vines.wav');
-
 /**
  * This function initializes the background music and plays it if it is not
  * muted. Otherwise, the music is paused.
@@ -428,6 +427,12 @@ function loadLevel(name, callback) {
 	});
 }
 
+/**
+ * This function sets a data value for a tile of the current level.
+ * @param x is the first coordinate
+ * @param y is the second coordinate
+ * @param tile is the new tile value
+ */
 function setLevelTile(x, y, tile) {
 	// create array
 	if(game.level.sprites[x] === undefined) {
@@ -447,8 +452,8 @@ function setLevelTile(x, y, tile) {
 	sprite.position.y = y * tileset.tileheight;
 	
 	// add sprite
-	// remove old sprite
 	if(game.level.sprites[x][y] !== undefined) {
+		// remove old sprite
 		stage.addChildAt(sprite, stage.children.indexOf(game.level.sprites[x][y]));
 		stage.removeChild(game.level.sprites[x][y]);
 		game.level.sprites[x][y] = sprite;
@@ -467,6 +472,12 @@ function setLevelTile(x, y, tile) {
  * @returns the value of the property
  */
 function tileProperty(prop, x, y) {
+	// special case: walkable on key tiles
+	if(prop === 'walkable' && game.activeKey !== undefined && tileProperty('key', x, y) !== undefined) {
+		return '0';
+	}
+	
+	// find value
 	var layer = game.level.layers[0];
 	var tile = layer.data[x + y*layer.width];
 	var tileset = game.level.tilesets[0];
@@ -484,14 +495,20 @@ function tileProperty(prop, x, y) {
  * @param y is the second coordinate of the new tile
  */
 function arriveOnTile(x, y) {
-	// pickup key
-	if(tileProperty('key', x, y) !== undefined) {
-		// play sound
-		if(!muted) {
-			sound.pickup.play();	
+	if(game.activeKey === undefined) {
+		// pickup key
+		if(tileProperty('key', x, y) !== undefined) {
+			// pickup key
+			game.activeKey = tileProperty('key', x, y);
+			$('img.activeKey').attr('src', 'img/key_'+game.activeKey+'.png');
+			
+			// play sound
+			if(!muted) {
+				sound.pickup.play();	
+			}
+			
+			// remove key from map
+			setLevelTile(x, y, 1);
 		}
-		
-		// remove key from map
-		setLevelTile(x, y, 1);
 	}
 }
