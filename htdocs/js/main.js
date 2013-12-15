@@ -384,31 +384,24 @@ function loadLevel(name, callback) {
 		success: function(level) {
 			stage = new PIXI.Stage(0x260b01);
 			game.level = level;
+			game.level.sprites = [];
 			$.each(level.layers, function(i, layer) {
 				$.each(layer.data, function(i, tile) {
 					if(tile !== 0) {
-						// load sprite
-						var texture = PIXI.Texture.fromFrame('tile_'+(tile < 10 ? '0' : '')+tile+'.png');
-						var sprite = new PIXI.Sprite(texture);
-						
 						// find position
 						var x = i % layer.width;
 						var y = (i - x) / layer.width;
-						
-						// set position
-						var tileset = level.tilesets[0];
-						sprite.position.x = x * tileset.tilewidth;
-						sprite.position.y = y * tileset.tileheight;
-						
+
 						// add sprite
-						stage.addChild(sprite);
-						
+						setLevelTile(x, y, tile);
+
 						// find start
 						if(tileProperty('start', x, y) === '1') {
 							game.player.position = {
 								x: x,
 								y: y
 							};
+							var tileset = game.level.tilesets[0];
 							game.player.sprite.position = {
 								x: (x + 0.5) * tileset.tilewidth,
 								y: (y + 0.5) * tileset.tileheight
@@ -421,7 +414,7 @@ function loadLevel(name, callback) {
 			
 			// add sprites
 			$.each(game.sprites, function(i, sprite) {
-				stage.addChild(sprite.sprite);	
+				stage.addChild(sprite.sprite);
 			});
 
 			// callback
@@ -433,6 +426,37 @@ function loadLevel(name, callback) {
 		    requestAnimFrame(animate);
 		}
 	});
+}
+
+function setLevelTile(x, y, tile) {
+	// create array
+	if(game.level.sprites[x] === undefined) {
+		game.level.sprites[x] = [];
+	}
+	
+	// set level data
+	game.level.layers[0].data[x + y*game.level.layers[0].width] = tile;
+	
+	// load sprite
+	var texture = PIXI.Texture.fromFrame('tile_'+(tile < 10 ? '0' : '')+tile+'.png');
+	var sprite = new PIXI.Sprite(texture);
+	
+	// set position
+	var tileset = game.level.tilesets[0];
+	sprite.position.x = x * tileset.tilewidth;
+	sprite.position.y = y * tileset.tileheight;
+	
+	// add sprite
+	// remove old sprite
+	if(game.level.sprites[x][y] !== undefined) {
+		stage.addChildAt(sprite, stage.children.indexOf(game.level.sprites[x][y]));
+		stage.removeChild(game.level.sprites[x][y]);
+		game.level.sprites[x][y] = sprite;
+	}
+	else {
+		stage.addChild(sprite);
+	}
+	game.level.sprites[x][y] = sprite;
 }
 
 /**
@@ -460,9 +484,14 @@ function tileProperty(prop, x, y) {
  * @param y is the second coordinate of the new tile
  */
 function arriveOnTile(x, y) {
+	// pickup key
 	if(tileProperty('key', x, y) !== undefined) {
+		// play sound
 		if(!muted) {
 			sound.pickup.play();	
 		}
+		
+		// remove key from map
+		setLevelTile(x, y, 1);
 	}
 }
