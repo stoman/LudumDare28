@@ -270,3 +270,22 @@ function loadLevel(name) {
 		}
 	});
 }
+
+/**
+ * This function finds properties of a tile at given coordinates.
+ * @param prop is the name of the property to look for
+ * @param x is the first coordinate
+ * @param y is the second coordinate
+ * @returns the value of the property
+ */
+function tileProperty(prop, x, y) {
+	var layer = game.level.layers[0];
+	var tile = layer.data[x + y*layer.width];
+	var tileset = game.level.tilesets[0];
+	if((tile-1) in tileset.tileproperties && prop in tileset.tileproperties[tile-1]) {
+		return tileset.tileproperties[tile-1][prop];
+	}
+	else {
+		return tileset.properties[prop];
+	}
+}
