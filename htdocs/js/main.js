@@ -91,10 +91,11 @@ function initialize(level) {
     		sprite: undefined,
     		position: undefined,
     		positionTile: undefined,
-    		speed: 1,
+    		speed: 3,
     		movingDirection: undefined,
     		inputDirection: undefined
     	},
+    	running: false,
         speed: 1,
         sprites: []
     };
@@ -121,8 +122,11 @@ function initialize(level) {
     game.player.sprite.gotoAndPlay(0);
     game.sprites.push(game.player);
 
+
     // load level
     loadLevel(level, function() {
+    	game.running = true;
+    	
 	    // animate
 	    requestAnimFrame(animate);
     });
@@ -133,6 +137,10 @@ function initialize(level) {
  * second. All position updates and so on go here.
  */
 function animate() {
+	if(!game.running) {
+		return;
+	}
+	
 	// read user input
 	game.player.inputDirection = undefined;
 	if(-1 < keysPressed.indexOf(38)) {
@@ -308,13 +316,15 @@ function animate() {
 		}
 	}
 	
+	if(!game.running) {
+		return;
+	}
+	
 	// set position of agents
 	$.each(game.sprites, function(i, agent) {
 		agent.sprite.position.x = offset.x + agent.position.x;
 		agent.sprite.position.y = offset.y + agent.position.y;
 	});
-	
-
 	
     // render
     renderer.render(stage);
@@ -557,7 +567,7 @@ function arriveOnTile(x, y) {
 
 	// lock	
 	if(tileProperty('lock', x, y) !== undefined && game.activeKey === tileProperty('lock', x, y)) {
-		console.log('win');
+		game.running = false;
 		initialize('level2');
 	}
 }
