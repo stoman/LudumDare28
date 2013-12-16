@@ -202,6 +202,10 @@
             <filename>tile_34.png</filename>
             <filename>tile_35.png</filename>
             <filename>tile_36.png</filename>
+            <filename>tile_37.png</filename>
+            <filename>tile_38.png</filename>
+            <filename>tile_39.png</filename>
+            <filename>tile_40.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
