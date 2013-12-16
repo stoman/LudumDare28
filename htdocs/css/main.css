@@ -1,12 +1,16 @@
-body {
+body, a {
 	background-color: #260b01;
-	color: #7a7d7a;
+	color: #F2D194;
 }
 
 #main-container {
 	width: 700px;
 	margin: 50px auto;
 	position: relative;
+}
+
+#main-container h1 {
+	padding-top: 700px;
 }
 
 #game-canvas {
@@ -38,5 +42,4 @@ body {
 	position: absolute;
 	bottom: 10px;
 	right: 10px;
-	color: #ffffff;
 }

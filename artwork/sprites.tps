@@ -171,6 +171,11 @@
             <filename>player_2l.png</filename>
             <filename>player_2r.png</filename>
             <filename>player.png</filename>
+            <filename>player_hat_2r.png</filename>
+            <filename>player_hat.png</filename>
+            <filename>player_hat_1l.png</filename>
+            <filename>player_hat_1r.png</filename>
+            <filename>player_hat_2l.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

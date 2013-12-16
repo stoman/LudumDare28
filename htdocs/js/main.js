@@ -6,6 +6,34 @@ var canvas;
 var renderer;
 var stage;
 var game;
+var levels = [
+	{
+		name: 'level1',
+		keys: ['green']
+	},
+	{
+		name: 'level2',
+		keys: ['green', 'red']
+	},
+	{
+		name: 'level3',
+		keys: ['green', 'red', 'blue']
+	},
+	{
+		name: 'level4',
+		keys: ['green', 'red', 'blue']
+	},
+	{
+		name: 'level5',
+		keys: ['green', 'red', 'blue']
+	},
+	{
+		name: 'level6',
+		keys: ['green', 'red', 'blue']
+	}
+];
+var obtainedKeys = $.jStorage.get('obtainedKeys', {});
+
 
 // user input
 var keysPressed = [];
@@ -18,6 +46,8 @@ $(document).ready(
             var loader = new PIXI.AssetLoader([
             	// images
                 'img/pixi.js.png',
+                'img/button.png',
+                'img/button_active.png',
                 
             	// sprites
                 'img/sprites.json',
@@ -27,12 +57,11 @@ $(document).ready(
             ]);
             loader.addEventListener('onComplete', function(event) {
                 // finished -> start game
-                var time = 200;
+                var time = 1000;
                 $('#loading').fadeOut(time, function() {
                     $('#game-canvas').fadeIn(time);
-                    playBackgroundMusic();
                     setup();
-                    initialize('level1');
+                    levelSelect();
                 });
             });
             
@@ -59,13 +88,13 @@ function setup() {
     // handle keyboard input
     document.onkeydown = function(event) {
         keysPressed.push(event.keyCode);
-        return true;
+        return false;
     };
     document.onkeyup = function(event) {
         while (-1 < keysPressed.indexOf(event.keyCode)) {
             keysPressed.splice(keysPressed.indexOf(event.keyCode), 1);
         }
-        return true;
+        return false;
     };
     
     // handle mouse input
@@ -111,6 +140,18 @@ function initialize(level) {
     	'player_2r.png',
     	'player_1r.png'
     ];
+    if(hasHat()) {
+    	playerFrames = [
+	    	'player_hat.png',
+	    	'player_hat_1l.png',
+	    	'player_hat_2l.png',
+	    	'player_hat_1l.png',
+	    	'player_hat.png',
+	    	'player_hat_1r.png',
+	    	'player_hat_2r.png',
+	    	'player_hat_1r.png'
+	    ];
+    }
     var playerTextures = [];
     for(var i = 0; i < playerFrames.length; i++) {
 		playerTextures.push(PIXI.Texture.fromFrame(playerFrames[i]));
@@ -123,10 +164,16 @@ function initialize(level) {
     game.sprites.push(game.player);
 
 
+	// sound
+	sound.background.pause();
+	sound.background = sound.level_background;
+	playBackgroundMusic();
+
     // load level
     loadLevel(level, function() {
     	game.running = true;
     	
+
 	    // animate
 	    requestAnimFrame(animate);
     });
@@ -142,6 +189,11 @@ function animate() {
 	}
 	
 	// read user input
+	if(-1 < keysPressed.indexOf(27)) {
+		game.running = false;
+		levelSelect();
+		return;
+	}
 	game.player.inputDirection = undefined;
 	if(-1 < keysPressed.indexOf(38)) {
 		game.player.inputDirection = 'north';	
@@ -334,11 +386,16 @@ function animate() {
 
 // sound
 var sound = {
-    background: new Audio('audio/level1.wav'),
+    background: new Audio('audio/level2.wav'),
     bump: new Audio('audio/bump.wav'),
-    pickup: new Audio('audio/pickup.wav')
+    click: new Audio('audio/click.wav'),
+    level_select: new Audio('audio/level2.wav'),
+    level_background: new Audio('audio/level1.wav'),
+    pickup: new Audio('audio/pickup.wav'),
+    select: new Audio('audio/select.wav'),
+    win: new Audio('audio/win.wav')
 };
-var muted = true;
+var muted = false;
 
 /**
  * This function initializes the background music and plays it if it is not
@@ -440,12 +497,26 @@ function loadLevel(name, callback) {
 			stage = new PIXI.Stage(0x260b01);
 			game.level = level;
 			game.level.sprites = [];
+			game.level_name = name;
+
+			if(!(name in obtainedKeys)) {
+				obtainedKeys[name] = [];
+			}
+
 			$.each(level.layers, function(i, layer) {
 				$.each(layer.data, function(i, tile) {
 					if(tile !== 0) {
 						// find position
 						var x = i % layer.width;
 						var y = (i - x) / layer.width;
+						
+						// check activation
+						if(tileProperty('key', x, y) !== undefined && obtainedKeys[name].indexOf(tileProperty('key', x, y)) > -1) {
+							tile = game.level.properties.tile_empty;
+						}
+						if(tileProperty('lock', x, y) !== undefined && obtainedKeys[name].indexOf(tileProperty('lock', x, y)) > -1) {
+							tile = game.level.properties.tile_neutral_lock;
+						}
 
 						// add sprite
 						setLevelTile(x, y, tile);
@@ -568,6 +639,196 @@ function arriveOnTile(x, y) {
 	// lock	
 	if(tileProperty('lock', x, y) !== undefined && game.activeKey === tileProperty('lock', x, y)) {
 		game.running = false;
-		initialize('level2');
+		if(!muted) {
+			sound.win.play();
+		}
+		
+		// add key
+		if(!(game.level_name in obtainedKeys)) {
+			obtainedKeys[game.level_name] = [];
+		}
+		obtainedKeys[game.level_name].push(game.activeKey);
+		$.jStorage.set('obtainedKeys', obtainedKeys);
+		
+		levelSelect();
 	}
+}
+
+/**
+ * This function displays a menu to select a level.
+ */
+function levelSelect() {
+	stage = new PIXI.Stage(0x260b01, true);
+
+	// header	
+	var header = new PIXI.Text('Select A Level', {
+		font: "bold 60px Arvo",
+		fill: "#F2D194",
+		stroke: "#260B01",
+		strokeThickness: 7,
+		align: "center"
+	});
+	header.position.x = canvas.width() / 2;
+	header.position.y = 100;
+	header.anchor.x = 0.5;
+	header.anchor.y = 0.5;
+	stage.addChild(header);
+	
+	// header 2
+	if(hasHat()) {
+		var header2 = new PIXI.Text('You obtained several keys. Please accept\na hat as a mark of my esteem :)', {
+			font: "bold 20px Arvo",
+			fill: "#F2D194",
+			stroke: "#260B01",
+			strokeThickness: 7,
+			align: "center"
+		});
+		header2.position.x = canvas.width() / 2;
+		header2.position.y = 180;
+		header2.anchor.x = 0.5;
+		header2.anchor.y = 0.5;
+		stage.addChild(header2);
+	}
+	
+	// buttons
+	var buttonTexture = PIXI.Texture.fromImage('img/button.png');
+	var buttonTextureActive = PIXI.Texture.fromImage('img/button_active.png');
+	var border = 100;
+	var levelsPerRow = 3;
+	var display = true;
+	var finished = true;
+	for(var i = 0; i < levels.length && display; i++) {
+		// load sprite
+		var button = new PIXI.Sprite(buttonTexture);
+		button.position.x = border + (canvas.width() - 2*border) / (levelsPerRow-1) * (i % levelsPerRow) + 2;
+		button.position.y = 300 + (i - i % levelsPerRow) / levelsPerRow * 120;
+		button.anchor.x = 0.5;
+		button.anchor.y = 0.5;
+		stage.addChild(button);
+		
+		// events
+		button.setInteractive(true);
+		button.mouseover = function(data) {
+			this.setTexture(buttonTextureActive);
+			if(!muted) {
+				sound.select.play();
+			}
+		};
+		button.mouseout = function(data) {
+			this.setTexture(buttonTexture);
+		};
+		var buttonClick = function(level) {
+			return function(data) {
+				if(!muted) {
+					sound.click.play();
+				}			
+				initialize(level);
+			}
+		};
+		button.click = button.tap = buttonClick(levels[i].name);
+
+		// add text
+    	var text = new PIXI.Text(i+1, {
+			font: "bold 60px Arvo",
+			fill: "#F2D194",
+			stroke: "#260B01",
+			strokeThickness: 7,
+			align: "center"
+    	});
+    	text.position.x = border + (canvas.width() - 2*border) / (levelsPerRow-1) * (i % levelsPerRow);
+		text.position.y = 300 + (i - i % levelsPerRow) / levelsPerRow * 120 - 20;
+		text.anchor.x = 0.5;
+		text.anchor.y = 0.5;
+		stage.addChild(text);
+
+		// add keys
+		if(!(levels[i].name in obtainedKeys)) {
+			obtainedKeys[levels[i].name] = [];
+		}
+    	text = new PIXI.Text(obtainedKeys[levels[i].name].length+'/'+levels[i].keys.length+' key'+(levels[i].keys.length > 1 ? 's' : ''), {
+			font: "bold 20px Arvo",
+			fill: "#F2D194",
+			stroke: "#260B01",
+			strokeThickness: 7,
+			align: "center"
+    	});
+    	text.position.x = border + (canvas.width() - 2*border) / (levelsPerRow-1) * (i % levelsPerRow);
+		text.position.y = 300 + (i - i % levelsPerRow) / levelsPerRow * 120 + 25;
+		text.anchor.x = 0.5;
+		text.anchor.y = 0.5;
+		stage.addChild(text);
+		
+		display = obtainedKeys[levels[i].name].length > 0;
+		finished = finished && obtainedKeys[levels[i].name].length == levels[i].keys.length;
+	}
+	
+	if(finished) {
+	    //add gray layer
+	    var layer = new PIXI.Graphics();
+	    layer.lineStyle(0);
+	    layer.beginFill(0xc0c0c0, 0.85);
+	    layer.moveTo(0, 0);
+	    layer.lineTo(renderer.width, 0);
+	    layer.lineTo(renderer.width, renderer.height);
+	    layer.lineTo(0, renderer.height);
+	    layer.endFill();
+	    stage.addChild(layer);
+		
+		// winner
+		var winner = new PIXI.Text('You found all the keys. Congratulations!\nAs a prize you can keep your nice hat :)\nHave a nice day.', {
+			font: "bold 35px Arvo",
+			fill: "#F2D194",
+			stroke: "#260B01",
+			strokeThickness: 7,
+			align: "center"
+		});
+		winner.position.x = canvas.width() / 2;
+		winner.position.y = canvas.height() / 2;
+		winner.anchor.x = 0.5;
+		winner.anchor.y = 0.5;
+		stage.addChild(winner);
+	}
+	
+	// footer
+	var footer = new PIXI.Text('reset game', {
+		font: "bold 20px Arvo",
+		fill: "#F2D194",
+		stroke: "#260B01",
+		strokeThickness: 7,
+		align: "center"
+	});
+	footer.position.x = canvas.width() / 2;
+	footer.position.y = canvas.height() - 30;
+	footer.anchor.x = 0.5;
+	footer.anchor.y = 0.5;
+	stage.addChild(footer);
+	
+	footer.setInteractive(true);
+	footer.click = footer.tap = function(data) {
+		$.jStorage.flush();
+		obtainedKeys = {};
+		levelSelect();
+	};
+
+	// music
+	sound.background.pause();
+	sound.background = sound.level_select;
+	playBackgroundMusic();
+
+	requestAnimFrame(animateLevelSelect);
+}
+
+function animateLevelSelect() {
+	if(game !== undefined && game.running) {
+		return;
+	}
+    renderer.render(stage);
+    requestAnimFrame(animateLevelSelect);
+}
+
+function hasHat() {
+	if(!('level3' in obtainedKeys)) {
+		obtainedKeys.level3 = [];	
+	}
+	return obtainedKeys.level3.length > 0;	
 }
