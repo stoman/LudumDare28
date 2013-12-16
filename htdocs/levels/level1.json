@@ -14,7 +14,8 @@
  "orientation":"orthogonal",
  "properties":
     {
-
+     "tile_empty":"1",
+     "tile_neutral_lock":"37"
     },
  "tileheight":64,
  "tilesets":[

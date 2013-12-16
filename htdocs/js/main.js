@@ -505,6 +505,11 @@ function tileProperty(prop, x, y) {
 		return '0';
 	}
 	
+	// special case: walkable on lock tiles
+	if(prop === 'walkable' && tileProperty('lock', x, y) !== undefined) {
+		return game.activeKey === tileProperty('lock', x, y) ? '1' : '0';
+	}
+	
 	// find value
 	var layer = game.level.layers[0];
 	var tile = layer.data[x + y*layer.width];
@@ -523,8 +528,8 @@ function tileProperty(prop, x, y) {
  * @param y is the second coordinate of the new tile
  */
 function arriveOnTile(x, y) {
+	// pickup key
 	if(game.activeKey === undefined) {
-		// pickup key
 		if(tileProperty('key', x, y) !== undefined) {
 			// pickup key
 			game.activeKey = tileProperty('key', x, y);
@@ -536,7 +541,12 @@ function arriveOnTile(x, y) {
 			}
 			
 			// remove key from map
-			setLevelTile(x, y, 1);
+			setLevelTile(x, y, game.level.properties.tile_empty);
 		}
+	}
+
+	// lock	
+	if(tileProperty('lock', x, y) !== undefined && game.activeKey === tileProperty('lock', x, y)) {
+		console.log('win');
 	}
 }
