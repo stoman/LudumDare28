@@ -32,7 +32,7 @@ $(document).ready(
                     $('#game-canvas').fadeIn(time);
                     playBackgroundMusic();
                     setup();
-                    initialize();
+                    initialize('level1');
                 });
             });
             
@@ -80,8 +80,9 @@ function setup() {
 /**
  * This function runs the game. It creates the renderer, the stage, the sprites
  * and so on.
+ * @param level is the name of the level to load
  */
-function initialize() {
+function initialize(level) {
     // game data
     game = {
     	activeKey: undefined,
@@ -121,7 +122,10 @@ function initialize() {
     game.sprites.push(game.player);
 
     // load level
-    loadLevel('level1');
+    loadLevel(level, function() {
+	    // animate
+	    requestAnimFrame(animate);
+    });
 }
 
 /**
@@ -282,10 +286,19 @@ function animate() {
 	});    
 	
 	// position all objects
-	var offset = {
-		x: Math.max(Math.min(0, -game.player.position.x + canvas.width()/2), canvas.width() - game.level.width * tileset.tilewidth),
-		y: Math.max(Math.min(0, -game.player.position.y + canvas.height()/2), canvas.height() - game.level.height * tileset.tileheight)
-	};
+	var offset;
+	if(game.player.position !== undefined) {
+		offset = {
+			x: Math.max(Math.min(0, -game.player.position.x + canvas.width()/2), canvas.width() - game.level.width * tileset.tilewidth),
+			y: Math.max(Math.min(0, -game.player.position.y + canvas.height()/2), canvas.height() - game.level.height * tileset.tileheight)
+		};
+	}
+	else {
+		offset = {
+			x: 0,
+			y: 0
+		};
+	}
 
 	// set position of tile
 	for(var x = 0; x < game.level.width; x++) {
@@ -453,9 +466,6 @@ function loadLevel(name, callback) {
 			if(callback !== undefined) {
 				callback();	
 			}
-
-		    // animate
-		    requestAnimFrame(animate);
 		}
 	});
 }
@@ -548,5 +558,6 @@ function arriveOnTile(x, y) {
 	// lock	
 	if(tileProperty('lock', x, y) !== undefined && game.activeKey === tileProperty('lock', x, y)) {
 		console.log('win');
+		initialize('level2');
 	}
 }
