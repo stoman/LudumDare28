@@ -39,7 +39,9 @@ body, a {
 }
 
 #mute {
-	position: absolute;
+	position: fixed;
 	bottom: 10px;
 	right: 10px;
+	font-size: xx-large;
+	font-weight: bold;
 }
