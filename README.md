@@ -28,3 +28,7 @@ Remember, you only get one key ;)
 * Platform: HTML5, JavaScript
 * Author: Stefan Toman
 * Tools used: Eclipse Orion, pixi.js, Tiled, The Gimp, Bfxr, inudge
+
+## Licence
+
+This project is published under the MIT license. Feel free to use this template for all your projects.stefan
