@@ -31,4 +31,4 @@ Remember, you only get one key ;)
 
 ## Licence
 
-This project is published under the MIT license. Feel free to use this template for all your projects.stefan
+This project is published under the MIT license. Feel free to use this template for all your projects.
